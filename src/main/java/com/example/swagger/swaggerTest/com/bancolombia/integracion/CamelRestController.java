@@ -1,4 +1,3 @@
-package com.bancolombia.integracion;
 
 import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +16,7 @@ public final class CamelRestController {
         try {
             String path = request.getRequestURI();
             String camelPrefix = (path != null && path.startsWith("/")) ? "/camel" : "/camel/";
-            request.getServletContext().getRequestDispatcher(camelPrefix + path).forward(request, response);
+            request.getRequestDispatcher(camelPrefix + path).forward(request, response);
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
