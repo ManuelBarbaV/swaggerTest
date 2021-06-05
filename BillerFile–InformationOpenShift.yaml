@@ -1,0 +1,683 @@
+---
+swagger: "2.0"
+info:
+  title: "Biller File – Information"
+  description: "Esta Api permite visualizar la información cabecera de los archivos cargador por un recaudador. El recaudador podrá cargar archivos con facturas, cobros o reporte de novedades sobre sus facturas."
+  contact:
+    name: "Bancolombia API Working Group"
+    email: "apigroup@bancolombia.com.co"
+    url: "https://developer.grupobancolombia.com.co/contact"
+  termsOfService: ""
+  version: "1.0.0"
+  x-ibm-name: "biller-file–information"
+host: "$(catalog.host)"
+basePath: "/v1/operations/cross-product/operational-services/biller-file"
+paths:
+  /biller/agreement/list-files:
+    post:
+      summary: "Listar archivos de un recaudador"
+      description: "Esta Api permite listar la información de los archivos que han sido cargados por el recaudador con determinados filtros que facilitan la busqueda."
+      parameters:
+      - name: channel
+        maxLength: 5
+        required: true
+        description: Id de Canal valido para el convenio.
+        in: header
+        type: string      
+      - name: applicationId
+        required: true
+        description: 'Id de la aplicación del cliente.'
+        in: header
+        type: string       
+      - name: systemId
+        maxLength: 5
+        description: 'Id del consumidor.'
+        in: header
+        type: string 
+      - name: userName
+        required: true
+        description: 'Nombre del consumidor.'
+        in: header
+        type: string           
+      - name: name
+        required: true
+        description: 'Nombre del servicio.'
+        in: header
+        type: string          
+      - name: nameSpace
+        required: true
+        description: 'Nombre del espacio del servicio.'        
+        in: header
+        type: string  
+      - name: operation
+        required: true
+        description: 'Operación del servicio.'        
+        in: header
+        type: string        
+      - name: "message-id"
+        maxLength: 128
+        required: true
+        description: "Identificador de transacción. Se recomienda usar un UUID para\
+          \ el valor de este campo."
+        in: "header"
+        type: "string"
+      - name: "request"
+        required: true
+        in: "body"
+        schema:
+          $ref: "#/definitions/RequestListFiles"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/ResponseListFiles"
+          description: "Respuesta exitosa."
+          x-ibm-languages:
+            description:
+              en: "Successful response."
+          headers:
+            X-API-Version:
+              type: "number"
+              format: "float"
+              description: "Versionamiento semantico de la API"
+              x-ibm-languages:
+                description:
+                  en: "Semantic versioning of the API"
+            X-RateLimit-Limit:
+              type: "integer"
+              description: "Límite de solicitudes por hora"
+              x-ibm-languages:
+                description:
+                  en: "Resquest limit per hour."
+        400:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Error en la solicitud."
+          x-ibm-languages:
+            description:
+              en: "Error in the request."
+        401:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Credenciales incorrectas."
+          x-ibm-languages:
+            description:
+              en: "Incorrect credentials."
+        403:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "No tiene permisos para acceder al recurso."
+          x-ibm-languages:
+            description:
+              en: "You do not have permissions to access the resource."
+        404:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Recurso no encontrado."
+          x-ibm-languages:
+            description:
+              en: "Resource not found."
+        409:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "El estado del recurso presenta conflictos con los datos de\
+            \ la solicitud."
+          x-ibm-languages:
+            description:
+              en: "Resource state has conflicts with data of the request."
+        500:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Error interno del servidor."
+          x-ibm-languages:
+            description:
+              en: "Internal server error."
+        502:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Error en la respuesta del proveedor del servicio."
+          x-ibm-languages:
+            description:
+              en: "Error in the service provider response."
+        503:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Servicio no disponible."
+          x-ibm-languages:
+            description:
+              en: "Service unavailable."
+        504:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Tiempo de respuesta del proveedor del servicio excedido."
+          x-ibm-languages:
+            description:
+              en: "Service provider response time exceeded."
+        default:
+          description: "Error inesperado."
+          x-ibm-languages:
+            description:
+              en: "Unexpected Error."
+      tags:
+      - "List Biller Files Open Shift"
+      security:
+      - ClientId: []
+      - ClientSecret: []
+  /biller-file-information/health:
+    head:
+      responses:
+        200:
+          description: "200 OK"
+      security:
+      - ClientId: []
+        ClientSecret: []
+definitions:
+  RequestListFiles:
+    type: object
+    required:
+    - data
+    properties:
+      data:
+        type: object
+        required:
+        - pagination
+        - startDate
+        - endDate
+        - biller
+        properties:
+          pagination:
+            allOf:
+            - $ref: '#/definitions/size'
+            - $ref: '#/definitions/key'
+          startDate:
+            type: string
+            format: date
+            description: "Fecha Inicial para el rango de tiempo de la consulta, solo permite consultar los ultimos tres meses."
+            example: "18/02/2021"
+
+          endDate:
+            type: string
+            format: date
+            description: "Fecha final para el rango de tiempo de la consulta, solo permite consultar los ultimos tres meses."
+            example: "18/02/2021"
+            
+          biller:
+            type: object
+            description: "Información del recaudador"
+            properties:
+              identification:
+                $ref: '#/definitions/identification'
+              agreement:
+                type: object
+                required:
+                - code
+                description: "información del convenio"
+                properties:
+                  code:
+                    type: string
+                    description: "Codigo del convenio" 
+                    maxLength: 15
+                    example: "10101123"
+                  file:
+                    type: object
+                    description: "Información del archivo"
+                    properties:
+                      trackingId:
+                        type: string
+                        description: "Codigo de rastreo del archivo"
+                        maxLength: 35
+                      type:
+                        type: string
+                        description: "tipo de archivo, los tipos de archivo que pueden cargar son para facturas o novedades"
+                        maxLength: 15
+                        example: FACTURAS
+                        enum:
+                        - FACTURAS
+                        - COBROS
+                        - NOVEDADES
+                      status:
+                        type: string
+                        description: "Estado en el que se encuentra el archivo"
+                        maxLength: 15
+                        example: EXITOSO
+                        enum:
+                        - EXITOSO
+                        - FALLIDO
+                        - EN PROCESO
+                        - ANULADO
+                      channel:
+                        type: object
+                        description: "Canales por donde permite el recaudo"
+                        allOf:
+                        - $ref: '#/definitions/descriptionchannel'                       
+                      
+    additionalProperties: false
+  ResponseListFiles:
+    type: object
+    required:
+    - meta
+    - data
+    properties:
+      meta:
+        $ref: "#/definitions/meta"
+      data:
+        type: object
+        required:
+        - pagination
+        - biller
+        properties:
+          biller:
+            type: object
+            description: "Información del recaudador"
+            required: 
+            - "agreement"
+            - "identification"
+            properties:
+              identification:
+                $ref: '#/definitions/identificationDesc'
+              agreements:
+                type: array
+                required:
+                - "code"
+                - "name"
+                - "files"
+                description: "información del convenio"
+                items:
+                  $ref: "#/definitions/agreements"                
+      links:
+        $ref: "#/definitions/topLevelLinks"
+    additionalProperties: false
+    
+  agreements:
+    type: object
+    required: 
+    - "code"
+    - "name"  
+    - "files"
+    properties:
+      header:
+        $ref: '#/definitions/headerData'      
+      code:
+        type: number
+        description: Número de convenio
+        maxLength: 15
+      name:
+        type: string
+        description: Nombre del convenio
+        maxLength: 30
+      files:
+        type: object
+        required: 
+        - trackingId
+        - processingDate
+        - name
+        - type
+        - status
+        - channel
+        description: "información de los archivos..."
+        properties:
+          trackingId:
+            type: string
+            description: "Codigo de rastreo del archivo"
+            maxLength: 35            
+            example: "cnUaMZvZwsJS1eYBNmsp6WvCnURg54GK"
+          format:
+            type: string
+            description: "Formato de los archivos"
+            maxLength: 50
+            enum:
+            - NOVEDADES BANCOLOMBIA 2016
+            - NOVEDADES BANCOLOMBIA
+            - NOVEDADES ASOBANCARIA 2001
+            - NOVEDADES ASOBANCARIA 2011
+            - BANCOLOMBIA
+            - ASOBANCARIA 2001
+            - ASOBANCARIA 2001 SIN PUNTO
+            - ASOBANCARIA 2011
+            - CONAVI
+          consecutive:
+            type: string
+            description: "Consecutivo que identifica el archivo"
+            maxLength: 2          
+          processingDate:
+            type: string
+            format: datetime
+            description: "Fecha en que fue procesado el archivo"
+            example: "2020-09-08T02:42:13"
+          applicationDate:
+            type: string
+            format: date
+            description: "Fecha en que fue aplicado el archivo"
+            example: "2020-09-08"
+          name:
+            type: string
+            description: "Nombre del archivo"
+            maxLength: 100
+            example: "nombre de archivo"
+          type:
+            type: string
+            description: "Tipo de archivo"
+            enum:
+            - FACTURAS
+            - COBROS
+            - NOVEDADES
+          numberOfRecords:
+            type: number
+            description: "Es la cantidad de registros que contiene el archivo."
+            maxLength: 10
+            example: 5
+          successfullRecords:
+            type: number
+            description: "Cantidad de registros procesados correctamente"
+            maxLength: 10
+            example: 5            
+          failedRecords:
+            type: number
+            description: "Cantidad de registros que contienen error y no se
+            procesaron"
+            maxLength: 10
+            example: 5            
+          valueFile:
+            type: number
+            format: float
+            description: "Valor total del archivo que se cargó"
+            maxLength: 22
+            example: 5000000.12345          
+          status:
+            type: string
+            description: "estado del archivo"
+            maxLength: 15
+            enum: 
+            - EXITOSO
+            - FALLIDO  
+            - EN PROCESO
+            - ANULADO            
+          channelDescription:
+            type: string
+            description: "Nombre del canal o sistema que notifica el archivo"
+            enum: 
+            - SVE
+            - TAC
+            - CONTINGENCIA
+
+  size:
+    type: object
+    properties:
+      size:
+        type: number
+        maxLength: 6
+        description: Número de registros por pagina.
+        example: 10
+  key:
+    type: object
+    properties:
+      key:
+        type: number
+        maxLength: 10
+        description: Registro inicial.
+        example: 1
+  
+  descriptionchannel:
+    type: object
+    properties:
+     description:
+        type: string
+        description: Nombre del canal o sistema que notifica el archivo
+        maxLength: 20
+        example: "SVE"
+        enum:
+        - SVE
+        - TAC
+        - CONTINGENCIA
+
+  identification:
+    type: object
+    required:
+    - type
+    - number
+    allOf:
+    - $ref: '#/definitions/documentType'
+    - $ref: '#/definitions/documentNumber'
+    
+  identificationDesc:
+    type: object
+    required:
+    - type
+    - number
+    allOf:
+    - $ref: '#/definitions/documentTypeDesc'
+    - $ref: '#/definitions/documentNumber'
+    
+  documentType:
+    type: object
+    properties:
+      type:
+        type: string
+        description: Tipo de identificación del titular de la cuenta.
+        maxLength: 12
+        example: TIPDOC_FS003
+        enum:
+          - TIPDOC_FS000
+          - TIPDOC_FS001
+          - TIPDOC_FS002
+          - TIPDOC_FS003
+          - TIPDOC_FS004
+          - TIPDOC_FS005
+          - TIPDOC_FS006
+          - TIPDOC_FS007
+          - TIPDOC_FS008
+          - TIPDOC_FS009
+          - TIPDOC_FS010
+          
+  documentTypeDesc:
+    type: object
+    properties:
+      type:
+        type: string
+        description: "Tipo documento del recaudador"
+        maxLength: 60
+        example: CEDULA DE CIUDADANIA
+        enum:
+        - NIT 
+        - CEDULA DE CIUDADANIA 
+        - PASAPORTE
+        - REGISTRO CIVIL
+        - CARNE DIPLOMÁTICO
+        - CEDULA DE EXTRANJERIA
+        - TARJETA DE IDENTIDAD
+        - ID EXTRANJERO PN NO RESIDENTE EN COLOMBIA
+        - ID EXTRANJERO PJ NO RESIDENTE EN COLOMBIA
+        - FIDEICOMISO      
+  
+          
+  documentNumber:
+    type: object
+    properties:
+      number:
+        type: string
+        description: "Número Identificación del pagador"
+        example: "890511670"
+        maxLength: 15
+        minLength: 1
+        
+  meta:
+    description: "Meta-información no estandar que no se puede representar con datos."
+    type: "object"
+    required:
+    - "_messageId"
+    - "_requestDateTime"
+    - "_applicationId"
+    properties:
+      _messageId:
+        type: "string"
+        example: "c4e6bd04-5149-11e7-b114-b2f933d5fe66"
+      _requestDateTime:
+        type: "string"
+        format: "date-time"
+        example: "2017-01-24T05:00:00.000Z"
+      _applicationId:
+        type: "string"
+        example: "acxff62e-6f12-42de-9012-3e7304418abd"
+      flagMoreRecords:
+        type: boolean
+        description: Número de registros por pagina.
+        example: TRUE
+        enum: 
+        - TRUE
+        - FALSE
+      totalregisters:
+        type: number
+        maxLength: 10
+        description: Registro inicial.
+        example: 1         
+  headerData:
+    description: "El \"tipo\" y \"id\" para cada registro."
+    type: "object"
+    required:
+    - "type"
+    - "id"
+    properties:
+      type:
+        type: "string"
+        example: "listFile"
+      id:
+        type: "string"
+        example: "cnUaMZvZwsJS1eYBNmsp6WvCnURg54GK"
+    additionalProperties: false
+  topLevelLinks:
+    description: "URLs relacionadas con los datos primarios."
+    type: "object"
+    allOf:
+    - $ref: "#/definitions/links"
+  links:
+    description: "Un objeto de recurso PUEDE contener referencias a otros objetos\
+      \ de recurso"
+    type: "object"
+    properties:
+      self:
+        description: "Un mismo miembro, cuyo valor es una URL para los datos de relació\
+          n"
+        type: "string"
+        format: "uri"
+    additionalProperties: false
+  failure:
+    type: "object"
+    required:
+    - "meta"
+    - "errors"
+    - "status"
+    - "title"
+    properties:
+      meta:
+        $ref: "#/definitions/meta"
+      status:
+        description: "El cÃ³digo de estado HTTP aplicable a este problema, expresado\
+          \ como un valor de cadena."
+        type: "string"
+        example: 404
+      title:
+        description: "Un breve resumen, legible por el hombre, del problema. ** NO\
+          \ DEBE ** cambiar de ocurrencia a ocurrencia del problema, excepto para\
+          \ propósitos de localización."
+        type: "string"
+        example: "Not Found"
+      errors:
+        type: "array"
+        uniqueItems: true
+        items:
+          $ref: "#/definitions/error"
+    additionalProperties: false
+  error:
+    type: "object"
+    required:
+    - "code"
+    - "detail"
+    properties:
+      code:
+        description: "Un código de error específico de la aplicación, expresado como\
+          \ un valor de cadena."
+        type: "string"
+        example: "BP404"
+      detail:
+        description: "Una explicación legible por humanos específica para esta ocurrencia\
+          \ del problema."
+        type: "string"
+        example: "Requested resource could not be found"
+    additionalProperties: false
+schemes:
+- "https"
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: "specified"
+  cors:
+    enabled: true
+  properties:
+    profileTls:
+      value: "apic-dev-tls-profile"
+      description: ""
+      encoded: false
+    EndPoint:
+      value: "https://esbdev.bancolombia.corp:3300/ESB/SOAP/Default"
+      description: ""
+      encoded: false
+    catalogName:
+      value: "development"
+      description: ""
+      encoded: false
+  catalogs:
+    apic-dev:
+      properties:
+        ProfileTLS: ""
+    Development:
+      properties:
+        catalogName: "development"
+        EndPoint: "https://esbdev.bancolombia.corp:3310/ESB/SOAP/Default"
+        ProfileTLS: ""
+        profileTls: ""
+    Testing:
+      properties:
+        catalogName: "testing"
+        EndPoint: "https://esbqa.bancolombia.corp:3300/ESB/SOAP/Default"
+        profileTls: "apic-qa-tls-profile"
+    Production:
+      properties:
+        catalogName: "production"
+        EndPoint: "https://esbpro.bancolombia.corp:3300/ESB/SOAP/Default"
+        profileTls: "apic-prd-tls-profile"
+    SandBox:
+      properties:
+        catalogName: "sandbox"
+        EndPoint: "https://integracion-int-dev.apps.ambientesbc.lab/sandbox/"
+        profileTls: "cluster-eks-integracion-dev"
+  extensions:
+    API-Protocol: "1.0.0"
+    API-Authors: "1.0.0"
+  gateway: "datapower-gateway"
+  application-authentication:
+    certificate: true
+
+securityDefinitions:
+  ClientSecret:
+    type: "apiKey"
+    description: ""
+    in: "header"
+    name: "X-IBM-Client-Secret"
+  ClientId:
+    type: "apiKey"
+    in: "header"
+    name: "X-IBM-Client-Id"
+    description: "Identificación de la aplicación consumidora usando el client_id"
+x-API-Authors:
+  Design:
+    name: "Liliana Jaramillo"
+    email: "ljarami@bancolombia.com.co"
+  Development:
+    name: ""
+    email: ""
+  Review:
+    name: ""
+    email: ""
+consumes:
+- "application/vnd.bancolombia.v4+json"
+produces:
+- "application/vnd.bancolombia.v4+json"
